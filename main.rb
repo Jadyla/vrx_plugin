@@ -2,6 +2,7 @@ require 'net/http'
 require 'json'
 
 # Define o caminho para o script que você deseja carregar automaticamente ao abrir um modelo no sketchup
+html_content = File.read(File.join(File.dirname(__FILE__), 'index.html'))
 cfg = JSON.parse(File.read(File.join(File.dirname(__FILE__), 'cfg.json')))
 SCRIPT_PATH = cfg['script_path']
 URI_PATH = cfg['uri_path']
@@ -94,22 +95,7 @@ if fetch_data_from_api
   })
 
   # HTML da interface
-  dialog.set_html(<<-HTML)
-    <html>
-    <body>
-      <button id="create_rectangle">Criar Retângulo</button>
-      <button id="change_color">Pintar</button>
-      <script>
-        document.getElementById("create_rectangle").addEventListener("click", function() {
-          sketchup.create_rectangle();
-        });
-        document.getElementById("change_color").addEventListener("click", function() {
-          sketchup.change_color();
-        });
-      </script>
-    </body>
-    </html>
-  HTML
+  dialog.set_html(html_content)
 
   dialog.add_action_callback("create_rectangle") do |_|
     entidades = Sketchup.active_model.entities
