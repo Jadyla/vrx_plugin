@@ -2,8 +2,9 @@ require 'net/http'
 require 'json'
 
 # Define o caminho para o script que você deseja carregar automaticamente ao abrir um modelo no sketchup
-SCRIPT_PATH = 'C:\Users\Amoradev\AppData\Roaming\SketchUp\SketchUp 2021\SketchUp\Plugins\main.rb'
-URI_PATH = 'https://www.google.com' # TODO: mudar para a API
+cfg = JSON.parse(File.read(File.join(File.dirname(__FILE__), 'cfg.json')))
+SCRIPT_PATH = cfg['script_path']
+URI_PATH = cfg['uri_path']
 
 # Verifica se o módulo Sketchup está definido antes de usar suas classes
 if defined?(Sketchup::Model)
@@ -24,6 +25,7 @@ if defined?(Sketchup::Model)
 
       def activate
         UI.messagebox("Fechando o SketchUp...")
+        # TODO: Verificar com a vivian se é necessário fechar o SketchUp
         Sketchup.quit
       end
     end
@@ -42,6 +44,7 @@ else
 
         def activate
           UI.messagebox("Fechando o SketchUp...")
+          # TODO: Verificar com a vivian se é necessário fechar o SketchUp
           Sketchup.active_model.close
         end
       end
