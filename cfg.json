@@ -1,4 +1,9 @@
 {
   "script_path" : "C:\\Users\\Amoradev\\AppData\\Roaming\\SketchUp\\SketchUp 2021\\SketchUp\\Plugins\\main.rb",
-  "uri_path" : "http://192.168.68.131:8080/auth"
+  "uri_path" : "http://192.168.68.131:8080/auth",
+  "print_path" : "C:\\Users\\Amoradev\\AppData\\Roaming\\SketchUp\\SketchUp 2021\\SketchUp\\Plugins\\print.png",
+  "print_width" : 1105,
+  "print_height" : 1024,
+  "window_width" : 1440,
+  "window_height" : 1024
 }

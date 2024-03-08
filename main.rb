@@ -7,6 +7,19 @@ html_content = File.read(File.join(File.dirname(__FILE__), 'index.html'))
 cfg = JSON.parse(File.read(File.join(File.dirname(__FILE__), 'cfg.json')))
 SCRIPT_PATH = cfg['script_path']
 URI_PATH = cfg['uri_path']
+PRINT_PATH = cfg['print_path']
+
+#Variáveis ruby
+$plan = 'area_de_lazer'
+area_de_lazer = {'eye' => {'x' => 233.279284, 'y' => 49.104185, 'z' => 2.248919, 'factor' => 39.3700787},
+                'target' => {'x' => 244.615248, 'y' => 72.603167, 'z' => -1.159174, 'factor' => 39.3700787},
+                'up'=> {'x' => 0.0528586, 'y' => 0.115811, 'z' => 0.991864, 'factor' => 39.3700787}}
+$plans_camera_pos = {'area_de_lazer' => area_de_lazer}
+PRINT_WIDTH = cfg['print_width']
+PRINT_HEIGHT = cfg['print_height']
+WINDOW_WIDTH = cfg['window_width']
+WINDOW_HEIGHT = cfg['window_height']
+#/Variáveis Ruby
 
 # Verifica se o módulo Sketchup está definido antes de usar suas classes
 if defined?(Sketchup::Model)
@@ -19,6 +32,20 @@ if defined?(Sketchup::Model)
     end
   end
 
+  class MyEntitiesObserver < Sketchup::EntitiesObserver
+    def initialize
+      @timer_running = false
+    end
+    def onElementModified(entities, entity)
+      return if @timer_running
+      @timer_running = true
+      puts "onElementModified1: #{entity}"
+      UI.start_timer(1, false) do  # Aguarda 5 segundos antes de executar a ação
+        print_from_sketchup()
+        @timer_running = false  # Reseta a flag após a ação ser executada
+      end
+    end
+  end
   # Define uma classe de comando para fechar o SketchUp
   module YourPluginNamespace # TODO: Mudar o nome para o plugin
     class CloseSketchUp
@@ -39,6 +66,22 @@ else
       def onOpenModel(model)
       end
     end
+
+    class MyEntitiesObserver < Sketchup::EntitiesObserver
+      def initialize
+        @timer_running = false
+      end
+      def onElementModified(entities, entity)
+        return if @timer_running
+        @timer_running = true
+        puts "onElementModified1: #{entity}"
+        UI.start_timer(1, false) do  # Aguarda 5 segundos antes de executar a ação
+          print_from_sketchup()
+          @timer_running = false  # Reseta a flag após a ação ser executada
+        end
+      end
+    end
+
     module YourPluginNamespace # TODO: Mudar o nome para o plugin
       class CloseSketchUp
         def initialize
@@ -52,6 +95,37 @@ else
       end
     end
   end
+end
+
+def print_from_sketchup()
+  puts "PRINT ***"
+  camera_pos = $plans_camera_pos[$plan]
+
+  eye = Geom::Point3d.new(camera_pos['eye']['x'] * camera_pos['eye']['factor'],
+  camera_pos['eye']['y'] * camera_pos['eye']['factor'],
+  camera_pos['eye']['z'] * camera_pos['eye']['factor'])
+
+  target = Geom::Point3d.new(camera_pos['target']['x'] * camera_pos['target']['factor'],
+  camera_pos['target']['y'] * camera_pos['target']['factor'],
+  camera_pos['target']['z'] * camera_pos['target']['factor'])
+
+  up = Geom::Vector3d.new(camera_pos['up']['x'] * camera_pos['up']['factor'],
+  camera_pos['up']['y'] * camera_pos['up']['factor'],
+  camera_pos['up']['z'] * camera_pos['up']['factor'])
+
+
+  view = Sketchup.active_model.active_view
+  camera = view.camera
+  camera.set(eye, target, up)
+
+  print_keys = {
+      :filename => PRINT_PATH,
+      :width => PRINT_WIDTH,
+      :height => PRINT_HEIGHT
+  }
+
+  view.write_image(print_keys)
+
 end
 
 # Método para fazer uma solicitação à API
@@ -119,8 +193,8 @@ if credentials
       :dialog_title => "Exemplo de Interface",
       :scrollable => true,
       :resizable => true,
-      :width => 600,
-      :height => 400,
+      :width => WINDOW_WIDTH,
+      :height => WINDOW_HEIGHT,
       :left => 100,
       :top => 100
     })
@@ -152,6 +226,14 @@ if credentials
         face_selecionada.material = material
       end
     end
+
+    dialog.add_action_callback("onReady") { |context|
+      model = Sketchup.active_model
+      observer = MyEntitiesObserver.new
+      model.entities.add_observer(observer)
+
+      print_from_sketchup()
+    }
 
     dialog.show
   end
