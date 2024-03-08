@@ -1,9 +1,13 @@
 <html>
   <body>
     <img src="C:\Users\Amoradev\AppData\Roaming\SketchUp\SketchUp 2021\SketchUp\Plugins\print.png" alt="sketchup view">
+    <button id="parede_bancada">Parede Bancada</button>
     <script>
         document.addEventListener("DOMContentLoaded", function(event) {
           sketchup.onReady();
+        });
+        document.getElementById("parede_bancada").addEventListener("click", function() {
+          sketchup.paint("parede_bancada");
         });
     </script>
   </body>

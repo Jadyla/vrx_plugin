@@ -15,11 +15,49 @@ area_de_lazer = {'eye' => {'x' => 233.279284, 'y' => 49.104185, 'z' => 2.248919,
                 'target' => {'x' => 244.615248, 'y' => 72.603167, 'z' => -1.159174, 'factor' => 39.3700787},
                 'up'=> {'x' => 0.0528586, 'y' => 0.115811, 'z' => 0.991864, 'factor' => 39.3700787}}
 $plans_camera_pos = {'area_de_lazer' => area_de_lazer}
+$entities_dict = 'entities_'
+$entities_dict_key = 'entity_attr'
 PRINT_WIDTH = cfg['print_width']
 PRINT_HEIGHT = cfg['print_height']
 WINDOW_WIDTH = cfg['window_width']
 WINDOW_HEIGHT = cfg['window_height']
 #/Variáveis Ruby
+
+class CustomizeModel
+  def initialize (model, materials, entities)
+    @model = model
+    @materials = materials
+    @entities = entities
+  end
+
+  def paint(color, entity_attr)
+    new_material = @materials.add("New color")
+    new_material.color = color
+    apply_for_all_entity_faces(entity_attr, new_material)
+  end
+
+  def apply_texture(texture, entity_attr)
+    new_material = @materials.add('Joe')
+    new_material.texture = texture
+    apply_for_all_entity_faces(entity_attr, new_material)
+  end
+
+  private
+  def apply_for_all_entity_faces(entity_attr, new_material)
+    @entities.each do |entity|
+      if entity.attribute_dictionaries
+        attribute = entity.get_attribute($entities_dict, $entities_dict_key)
+        if attribute && attribute == entity_attr
+          if entity.respond_to?(:material)
+            entity.material = new_material
+          elsif entity.is_a?(Sketchup::Group) || entity.is_a?(Sketchup::ComponentInstance)
+            entity.definition.entities.grep(Sketchup::Face).each { |face| face.material = new_material }
+          end
+        end
+      end
+    end
+  end
+end
 
 # Verifica se o módulo Sketchup está definido antes de usar suas classes
 if defined?(Sketchup::Model)
@@ -201,6 +239,15 @@ if credentials
 
     # HTML da interface
     dialog.set_html(html_content)
+
+    dialog.add_action_callback("paint") do |contexto, entity_attr|
+      model = Sketchup.active_model
+      materials = model.materials
+      entities = model.entities
+      customizeModel = CustomizeModel.new(model, materials, entities)
+      customizeModel.apply_texture('C:\Users\Amoradev\AppData\Roaming\SketchUp\SketchUp 2021\SketchUp\Materials\SANTORINE-35-POLIDO.jpg', entity_attr)
+    end
+
 
     dialog.add_action_callback("create_rectangle") do |_|
       entidades = Sketchup.active_model.entities
