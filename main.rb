@@ -24,14 +24,17 @@ class ModelObserver < Sketchup::ModelObserver
 end
 
 module VRX
-  class CloseSketchUp
-    def initialize
+  class SketchupActions
+    def close_sketchup
+      Sketchup.quit
     end
 
-    def activate
-      UI.messagebox("Fechando o SketchUp...")
-      # TODO: Verificar com a vivian se é necessário fechar o SketchUp
-      Sketchup.quit
+    def open_file(skp_path)
+      SketchUp.open_file(skp_path)
+    end
+
+    def load_rb_script(rb_script_path)
+      Sketchup.load(rb_script_path)
     end
   end
 
