@@ -17,11 +17,6 @@ WINDOW_WIDTH = cfg['window_width']
 WINDOW_HEIGHT = cfg['window_height']
 #/Variáveis Ruby
 
-class ModelObserver < Sketchup::ModelObserver
-  def onOpenModel(model)
-    load SCRIPT_PATH
-  end
-end
 
 module VRX
   # -------------------------------------------------
@@ -157,8 +152,10 @@ end
 dialog.show
 
 
-unless defined?(Sketchup::Model)
-  abort("This script can only be used inside SketchUp application.")
+class ModelObserver < Sketchup::ModelObserver
+  def onOpenModel(model)
+    VRX::SketchupActions::load_rb_script(SCRIPT_PATH)
+  end
 end
 
 # Adiciona uma instância do observador ao SketchUp para observar eventos do modelo
