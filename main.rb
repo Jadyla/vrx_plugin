@@ -1,6 +1,7 @@
 require 'net/http'
 require 'json'
 require 'uri'
+require_relative 'utils'
 
 # Define o caminho para o script que você deseja carregar automaticamente ao abrir um modelo no sketchup
 html_content = File.read(File.join(File.dirname(__FILE__), 'index.html'))
@@ -10,13 +11,6 @@ URI_PATH = cfg['uri_path']
 PRINT_PATH = cfg['print_path']
 
 #Variáveis ruby
-$plan = 'area_de_lazer'
-area_de_lazer = {'eye' => {'x' => 233.279284, 'y' => 49.104185, 'z' => 2.248919, 'factor' => 39.3700787},
-                'target' => {'x' => 244.615248, 'y' => 72.603167, 'z' => -1.159174, 'factor' => 39.3700787},
-                'up'=> {'x' => 0.0528586, 'y' => 0.115811, 'z' => 0.991864, 'factor' => 39.3700787}}
-$plans_camera_pos = {'area_de_lazer' => area_de_lazer}
-$entities_dict = 'entities_'
-$entities_dict_key = 'entity_attr'
 PRINT_WIDTH = cfg['print_width']
 PRINT_HEIGHT = cfg['print_height']
 WINDOW_WIDTH = cfg['window_width']
