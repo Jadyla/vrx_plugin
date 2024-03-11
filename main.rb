@@ -53,78 +53,39 @@ class CustomizeModel
   end
 end
 
-# Verifica se o módulo Sketchup está definido antes de usar suas classes
-if defined?(Sketchup::Model)
-  # Define uma classe de observador para observar eventos do SketchUp
-  class ModelObserver < Sketchup::ModelObserver
-    # Método chamado quando um modelo é aberto
-    def onOpenModel(model)
-      # Carrega o script especificado
-      load SCRIPT_PATH
+# Define uma classe de observador para observar eventos do SketchUp
+class ModelObserver < Sketchup::ModelObserver
+  # Método chamado quando um modelo é aberto
+  def onOpenModel(model)
+    # Carrega o script especificado
+    load SCRIPT_PATH
+  end
+end
+
+class MyEntitiesObserver < Sketchup::EntitiesObserver
+  def initialize
+    @timer_running = false
+  end
+  def onElementModified(entities, entity)
+    return if @timer_running
+    @timer_running = true
+    puts "onElementModified1: #{entity}"
+    UI.start_timer(1, false) do  # Aguarda 5 segundos antes de executar a ação
+      print_from_sketchup()
+      @timer_running = false  # Reseta a flag após a ação ser executada
     end
   end
-
-  class MyEntitiesObserver < Sketchup::EntitiesObserver
+end
+# Define uma classe de comando para fechar o SketchUp
+module YourPluginNamespace # TODO: Mudar o nome para o plugin
+  class CloseSketchUp
     def initialize
-      @timer_running = false
-    end
-    def onElementModified(entities, entity)
-      return if @timer_running
-      @timer_running = true
-      puts "onElementModified1: #{entity}"
-      UI.start_timer(1, false) do  # Aguarda 5 segundos antes de executar a ação
-        print_from_sketchup()
-        @timer_running = false  # Reseta a flag após a ação ser executada
-      end
-    end
-  end
-  # Define uma classe de comando para fechar o SketchUp
-  module YourPluginNamespace # TODO: Mudar o nome para o plugin
-    class CloseSketchUp
-      def initialize
-      end
-
-      def activate
-        UI.messagebox("Fechando o SketchUp...")
-        # TODO: Verificar com a vivian se é necessário fechar o SketchUp
-        Sketchup.quit
-      end
-    end
-  end
-else
-  # Se o módulo Sketchup não estiver definido, defina-o como uma classe vazia para evitar erros de execução
-  module Sketchup
-    class ModelObserver
-      def onOpenModel(model)
-      end
     end
 
-    class MyEntitiesObserver < Sketchup::EntitiesObserver
-      def initialize
-        @timer_running = false
-      end
-      def onElementModified(entities, entity)
-        return if @timer_running
-        @timer_running = true
-        puts "onElementModified1: #{entity}"
-        UI.start_timer(1, false) do  # Aguarda 5 segundos antes de executar a ação
-          print_from_sketchup()
-          @timer_running = false  # Reseta a flag após a ação ser executada
-        end
-      end
-    end
-
-    module YourPluginNamespace # TODO: Mudar o nome para o plugin
-      class CloseSketchUp
-        def initialize
-        end
-
-        def activate
-          UI.messagebox("Fechando o SketchUp...")
-          # TODO: Verificar com a vivian se é necessário fechar o SketchUp
-          Sketchup.active_model.close
-        end
-      end
+    def activate
+      UI.messagebox("Fechando o SketchUp...")
+      # TODO: Verificar com a vivian se é necessário fechar o SketchUp
+      Sketchup.quit
     end
   end
 end
@@ -252,6 +213,10 @@ if credentials
 
     dialog.show
   end
+end
+
+unless defined?(Sketchup::Model)
+  abort("This script can only be used inside SketchUp application.")
 end
 
 # Adiciona uma instância do observador ao SketchUp para observar eventos do modelo
