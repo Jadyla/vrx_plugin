@@ -108,101 +108,39 @@ module YourPluginNamespace # TODO: Mudar o nome para o plugin
   end
 end
 
-# Método para fazer uma solicitação à API
-def fetch_data_from_api(email, password)
-  uri = URI(URI_PATH)
+dialog = UI::HtmlDialog.new({
+  :dialog_title => "Exemplo de Interface",
+  :scrollable => true,
+  :resizable => true,
+  :width => WINDOW_WIDTH,
+  :height => WINDOW_HEIGHT,
+  :left => 100,
+  :top => 100
+})
 
-  begin
-    # Construir a solicitação POST com as credenciais
-    request = Net::HTTP::Post.new(uri)
-    request.content_type = 'application/json'
-    request.body = { email: email, password: password }.to_json
+# HTML da interface
+dialog.set_html(html_content)
 
-    # Fazer a solicitação e obter a resposta
-    response = Net::HTTP.start(uri.hostname, uri.port) do |http|
-      http.request(request)
-    end
-
-    # Verificar o código de resposta
-    if response.code == '200'
-      # A resposta é bem-sucedida
-      UI.messagebox("Credenciais validadas com sucesso!!!")
-      return response.body
-    else
-      # A resposta não foi bem-sucedida
-      raise StandardError, "Erro na solicitação à API: #{response.code}"
-    end
-  rescue StandardError => e
-    # Exibir um alerta em caso de erro
-    UI.messagebox("Erro ao obter dados da API: #{e.message}")
-
-    # Fechar o SketchUp em caso de erro
-    if defined?(YourPluginNamespace::CloseSketchUp)
-      YourPluginNamespace::CloseSketchUp.new.activate
-    else
-      UI.messagebox("Erro ao fechar o SketchUp: classe CloseSketchUp não encontrada.")
-    end
-  end
+dialog.add_action_callback("paint") do |contexto, entity_attr|
+  model = Sketchup.active_model
+  materials = model.materials
+  entities = model.entities
+  customizeModel = CustomizeModel.new(model, materials, entities)
+  customizeModel.apply_texture('C:\Users\Amoradev\AppData\Roaming\SketchUp\SketchUp 2021\SketchUp\Materials\SANTORINE-35-POLIDO.jpg', entity_attr)
 end
 
-# Método para exibir um prompt de entrada para o usuário
-def prompt_for_credentials
-  prompts = ['e-mail', 'senha']
-  defaults = ['', '']
-  input = UI.inputbox(prompts, defaults, 'Insira suas credenciais')
-  return input if input
-  UI.messagebox('Operação cancelada pelo usuário.')
-  if defined?(YourPluginNamespace::CloseSketchUp)
-    YourPluginNamespace::CloseSketchUp.new.activate
-  else
-    UI.messagebox("Erro ao fechar o SketchUp: classe CloseSketchUp não encontrada.")
-  end
-  nil
+dialog.add_action_callback("onReady") { |context|
+  windowImage = YourPluginNamespace::WindowImage.new
+  windowImage.screenshot_sketchup()
+}
+
+dialog.add_action_callback("screenshot") do |context|
+  windowImage = YourPluginNamespace::WindowImage.new
+  windowImage.screenshot_sketchup()
 end
 
-# Exibir o prompt para o usuário
-credentials = prompt_for_credentials
+dialog.show
 
-# Se as credenciais foram fornecidas, faça a solicitação à API
-if credentials
-  email, password = credentials
-  user_authenticated = fetch_data_from_api(email, password)
-  if user_authenticated
-    # Se o retorno da API estiver disponível, mostrar a interface
-    dialog = UI::HtmlDialog.new({
-      :dialog_title => "Exemplo de Interface",
-      :scrollable => true,
-      :resizable => true,
-      :width => WINDOW_WIDTH,
-      :height => WINDOW_HEIGHT,
-      :left => 100,
-      :top => 100
-    })
-
-    # HTML da interface
-    dialog.set_html(html_content)
-
-    dialog.add_action_callback("paint") do |contexto, entity_attr|
-      model = Sketchup.active_model
-      materials = model.materials
-      entities = model.entities
-      customizeModel = CustomizeModel.new(model, materials, entities)
-      customizeModel.apply_texture('C:\Users\Amoradev\AppData\Roaming\SketchUp\SketchUp 2021\SketchUp\Materials\SANTORINE-35-POLIDO.jpg', entity_attr)
-    end
-
-    dialog.add_action_callback("onReady") { |context|
-      windowImage = YourPluginNamespace::WindowImage.new
-      windowImage.screenshot_sketchup()
-    }
-
-    dialog.add_action_callback("screenshot") do |context|
-      windowImage = YourPluginNamespace::WindowImage.new
-      windowImage.screenshot_sketchup()
-    end
-
-    dialog.show
-  end
-end
 
 unless defined?(Sketchup::Model)
   abort("This script can only be used inside SketchUp application.")
