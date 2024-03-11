@@ -53,11 +53,9 @@ class CustomizeModel
   end
 end
 
-# Define uma classe de observador para observar eventos do SketchUp
+
 class ModelObserver < Sketchup::ModelObserver
-  # Método chamado quando um modelo é aberto
   def onOpenModel(model)
-    # Carrega o script especificado
     load SCRIPT_PATH
   end
 end
@@ -70,13 +68,14 @@ class MyEntitiesObserver < Sketchup::EntitiesObserver
     return if @timer_running
     @timer_running = true
     puts "onElementModified1: #{entity}"
-    UI.start_timer(1, false) do  # Aguarda 5 segundos antes de executar a ação
+    UI.start_timer(1, false) do
       print_from_sketchup()
-      @timer_running = false  # Reseta a flag após a ação ser executada
+      @timer_running = false
     end
   end
 end
-# Define uma classe de comando para fechar o SketchUp
+
+
 module YourPluginNamespace # TODO: Mudar o nome para o plugin
   class CloseSketchUp
     def initialize
