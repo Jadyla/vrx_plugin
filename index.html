@@ -1,7 +1,8 @@
 <html>
   <body>
-    <img src="C:\Users\Amoradev\AppData\Roaming\SketchUp\SketchUp 2021\SketchUp\Plugins\print.png" alt="sketchup view">
+    <img id="main_image" src="C:\Users\Amoradev\AppData\Roaming\SketchUp\SketchUp 2021\SketchUp\Plugins\print.png" alt="sketchup view">
     <button id="parede_bancada">Parede Bancada</button>
+    <button class="reload_image">Aplicar</button>
     <script>
         document.addEventListener("DOMContentLoaded", function(event) {
           sketchup.onReady();
@@ -9,6 +10,20 @@
         document.getElementById("parede_bancada").addEventListener("click", function() {
           sketchup.paint("parede_bancada");
         });
+
+        const elements_that_reload_image = document.querySelectorAll('.reload_image');
+        elements_that_reload_image.forEach(function(element) {
+          element.addEventListener('click', function() {
+            setTimeout(reloadImage, 8000);
+          });
+        });
+
+        function reloadImage() {
+          var image = document.getElementById('main_image');
+          var srcOriginal = image.src.split('?')[0];
+          image.src = srcOriginal + "?timestamp=" + new Date().getTime();
+          console.log("Image updated!")
+        }
     </script>
   </body>
 </html>
