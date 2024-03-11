@@ -14,7 +14,8 @@
         const elements_that_reload_image = document.querySelectorAll('.reload_image');
         elements_that_reload_image.forEach(function(element) {
           element.addEventListener('click', function() {
-            setTimeout(reloadImage, 8000);
+            sketchup.screenshot();
+            setTimeout(reloadImage, 9000);
           });
         });
 

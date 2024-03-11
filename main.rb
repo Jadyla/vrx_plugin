@@ -60,22 +60,6 @@ class ModelObserver < Sketchup::ModelObserver
   end
 end
 
-class MyEntitiesObserver < Sketchup::EntitiesObserver
-  def initialize
-    @timer_running = false
-  end
-  def onElementModified(entities, entity)
-    return if @timer_running
-    @timer_running = true
-    puts "onElementModified1: #{entity}"
-    UI.start_timer(1, false) do
-      print_from_sketchup()
-      @timer_running = false
-    end
-  end
-end
-
-
 module YourPluginNamespace # TODO: Mudar o nome para o plugin
   class CloseSketchUp
     def initialize
@@ -87,37 +71,41 @@ module YourPluginNamespace # TODO: Mudar o nome para o plugin
       Sketchup.quit
     end
   end
-end
 
-def print_from_sketchup()
-  puts "PRINT ***"
-  camera_pos = $plans_camera_pos[$plan]
+  class WindowImage
+    @@plan = $plan
+    @@plans_camera_pos = $plans_camera_pos
 
-  eye = Geom::Point3d.new(camera_pos['eye']['x'] * camera_pos['eye']['factor'],
-  camera_pos['eye']['y'] * camera_pos['eye']['factor'],
-  camera_pos['eye']['z'] * camera_pos['eye']['factor'])
+    def screenshot_sketchup()
+      camera_pos = @@plans_camera_pos[@@plan]
 
-  target = Geom::Point3d.new(camera_pos['target']['x'] * camera_pos['target']['factor'],
-  camera_pos['target']['y'] * camera_pos['target']['factor'],
-  camera_pos['target']['z'] * camera_pos['target']['factor'])
+      eye = Geom::Point3d.new(camera_pos['eye']['x'] * camera_pos['eye']['factor'],
+      camera_pos['eye']['y'] * camera_pos['eye']['factor'],
+      camera_pos['eye']['z'] * camera_pos['eye']['factor'])
 
-  up = Geom::Vector3d.new(camera_pos['up']['x'] * camera_pos['up']['factor'],
-  camera_pos['up']['y'] * camera_pos['up']['factor'],
-  camera_pos['up']['z'] * camera_pos['up']['factor'])
+      target = Geom::Point3d.new(camera_pos['target']['x'] * camera_pos['target']['factor'],
+      camera_pos['target']['y'] * camera_pos['target']['factor'],
+      camera_pos['target']['z'] * camera_pos['target']['factor'])
+
+      up = Geom::Vector3d.new(camera_pos['up']['x'] * camera_pos['up']['factor'],
+      camera_pos['up']['y'] * camera_pos['up']['factor'],
+      camera_pos['up']['z'] * camera_pos['up']['factor'])
 
 
-  view = Sketchup.active_model.active_view
-  camera = view.camera
-  camera.set(eye, target, up)
+      view = Sketchup.active_model.active_view
+      camera = view.camera
+      camera.set(eye, target, up)
 
-  print_keys = {
-      :filename => PRINT_PATH,
-      :width => PRINT_WIDTH,
-      :height => PRINT_HEIGHT
-  }
+      print_keys = {
+          :filename => PRINT_PATH,
+          :width => PRINT_WIDTH,
+          :height => PRINT_HEIGHT
+      }
 
-  view.write_image(print_keys)
+      view.write_image(print_keys)
 
+    end
+  end
 end
 
 # Método para fazer uma solicitação à API
@@ -203,12 +191,14 @@ if credentials
     end
 
     dialog.add_action_callback("onReady") { |context|
-      model = Sketchup.active_model
-      observer = MyEntitiesObserver.new
-      model.entities.add_observer(observer)
-
-      print_from_sketchup()
+      windowImage = YourPluginNamespace::WindowImage.new
+      windowImage.screenshot_sketchup()
     }
+
+    dialog.add_action_callback("screenshot") do |context|
+      windowImage = YourPluginNamespace::WindowImage.new
+      windowImage.screenshot_sketchup()
+    end
 
     dialog.show
   end
