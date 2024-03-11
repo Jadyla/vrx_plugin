@@ -24,6 +24,10 @@ class ModelObserver < Sketchup::ModelObserver
 end
 
 module VRX
+  # -------------------------------------------------
+  # Class to add sketchup actions related only with
+  # Sketchup, not with the model.
+  # -------------------------------------------------
   class SketchupActions
     def close_sketchup
       Sketchup.quit
@@ -38,6 +42,11 @@ module VRX
     end
   end
 
+
+  # -------------------------------------------------
+  # Class to work with screenshots on Sketchup, reading
+  # canera information from another file.
+  # -------------------------------------------------
   class WindowImage
     @@plan = $plan
     @@plans_camera_pos = $plans_camera_pos
@@ -73,6 +82,10 @@ module VRX
     end
   end
 
+
+  # -------------------------------------------------
+  # Actions related with model customization
+  # -------------------------------------------------
   class CustomizeModel
     def initialize (model, materials, entities)
       @model = model
