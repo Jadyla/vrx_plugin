@@ -248,32 +248,6 @@ if credentials
       customizeModel.apply_texture('C:\Users\Amoradev\AppData\Roaming\SketchUp\SketchUp 2021\SketchUp\Materials\SANTORINE-35-POLIDO.jpg', entity_attr)
     end
 
-
-    dialog.add_action_callback("create_rectangle") do |_|
-      entidades = Sketchup.active_model.entities
-      ponto1 = [0, 0, 0]
-      ponto2 = [100, 100, 0]
-      entidades.add_face(ponto1, [ponto1.x, ponto2.y, ponto1.z], ponto2, [ponto2.x, ponto1.y, ponto1.z])
-    end
-
-    dialog.add_action_callback("change_color") do |_|
-      # Acessar o modelo ativo e a seleção atual
-      model = Sketchup.active_model
-      selection = model.selection
-
-      # Verificar se há exatamente um objeto selecionado e se é uma face
-      if selection.length == 1
-        # Realizar operações na face selecionada
-        face_selecionada = selection[0]
-
-        # Por exemplo, aplicar um material à face
-        materials = model.materials
-        material = materials.add("Cor Personalizada")
-        material.color = "Red"
-        face_selecionada.material = material
-      end
-    end
-
     dialog.add_action_callback("onReady") { |context|
       model = Sketchup.active_model
       observer = MyEntitiesObserver.new
