@@ -60,7 +60,7 @@ class ModelObserver < Sketchup::ModelObserver
   end
 end
 
-module YourPluginNamespace # TODO: Mudar o nome para o plugin
+module VRX
   class CloseSketchUp
     def initialize
     end
@@ -130,12 +130,12 @@ dialog.add_action_callback("paint") do |contexto, entity_attr|
 end
 
 dialog.add_action_callback("onReady") { |context|
-  windowImage = YourPluginNamespace::WindowImage.new
+  windowImage = VRX::WindowImage.new
   windowImage.screenshot_sketchup()
 }
 
 dialog.add_action_callback("screenshot") do |context|
-  windowImage = YourPluginNamespace::WindowImage.new
+  windowImage = VRX::WindowImage.new
   windowImage.screenshot_sketchup()
 end
 
