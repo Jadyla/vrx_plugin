@@ -1,0 +1,1 @@
+Sketchup::VRX::CustomizeModel.apply_texture('SANTORINE-35-POLIDO.jpg', 'parede_bancada')

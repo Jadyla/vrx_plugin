@@ -1,9 +1,48 @@
 require 'sketchup.rb'
 require 'extensions.rb'
 require 'langhandler.rb'
+require 'json'
+require_relative 'utils'
 
 module Sketchup
   module VRX
+    class MonitorCommands
+      def self.initialize()
+      end
+
+      def self.start_monitoring
+        last_modification = self.get_modification_time
+        UI.start_timer(1.0, true) do
+          time_modification = self.check_file_modification(last_modification)
+          last_modification = time_modification
+        end
+      end
+
+      def self.check_file_modification(last_modification)
+        current_modified_time = self.get_modification_time
+        if current_modified_time > last_modification
+          last_modification = current_modified_time
+          puts "O arquivo foi modificado!"
+          self.read_command_file
+        else
+          puts "Sem modificação!"
+        end
+        return last_modification
+      end
+
+      def self.read_command_file
+        File.open($command_file, 'r') do |file|
+          file.each_line do |line|
+            eval(line)
+          end
+        end
+      end
+
+      def self.get_modification_time
+        return File.mtime($command_file)
+      end
+    end
+
     class CustomizeModel
       def self.paint(color, entity_attr)
         new_material = ::Sketchup.active_model.materials.add("New color")
@@ -35,3 +74,5 @@ module Sketchup
     end
   end
 end # module Sketchup::VRX
+
+Sketchup::VRX::MonitorCommands.start_monitoring

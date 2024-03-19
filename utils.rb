@@ -10,3 +10,5 @@ $plans_camera_pos = {'area_de_lazer' => area_de_lazer}
 # GENERAL
 $entities_dict = 'entities_'
 $entities_dict_key = 'entity_attr'
+
+$command_file = 'C:\Users\Amoradev\AppData\Roaming\SketchUp\SketchUp 2021\SketchUp\Plugins\command.txt'
