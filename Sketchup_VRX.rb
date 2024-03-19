@@ -72,6 +72,41 @@ module Sketchup
         end
       end
     end
+
+    class Screenshot
+      def self.initialize()
+      end
+
+      def self.screenshot_sketchup(project, view)
+        camera_pos =$plans_camera_pos[project][view]
+
+        eye = Geom::Point3d.new(camera_pos['eye']['x'] * camera_pos['eye']['factor'],
+        camera_pos['eye']['y'] * camera_pos['eye']['factor'],
+        camera_pos['eye']['z'] * camera_pos['eye']['factor'])
+
+        target = Geom::Point3d.new(camera_pos['target']['x'] * camera_pos['target']['factor'],
+        camera_pos['target']['y'] * camera_pos['target']['factor'],
+        camera_pos['target']['z'] * camera_pos['target']['factor'])
+
+        up = Geom::Vector3d.new(camera_pos['up']['x'] * camera_pos['up']['factor'],
+        camera_pos['up']['y'] * camera_pos['up']['factor'],
+        camera_pos['up']['z'] * camera_pos['up']['factor'])
+
+
+        view = Sketchup.active_model.active_view
+        camera = view.camera
+        camera.set(eye, target, up)
+
+        print_keys = {
+            :filename => $PRINT_PATH,
+            :width => $PRINT_WIDTH,
+            :height => $PRINT_HEIGHT
+        }
+
+        view.write_image(print_keys)
+
+      end
+    end
   end
 end # module Sketchup::VRX
 
