@@ -52,6 +52,7 @@ module Sketchup
 
       def self.apply_texture(texture, entity_attr)
         new_material = ::Sketchup.active_model.materials.add('Joe')
+        # TODO: Remove Amoradev and set Username
         new_material.texture = 'C:\Users\Amoradev\AppData\Roaming\SketchUp\SketchUp 2021\SketchUp\Materials\\' + texture
         apply_for_all_entity_faces(entity_attr, new_material)
       end
@@ -77,8 +78,8 @@ module Sketchup
       def self.initialize()
       end
 
-      def self.screenshot_sketchup(project, view)
-        camera_pos =$plans_camera_pos[project][view]
+      def self.screenshot_sketchup(project, _view)
+        camera_pos =$plans_camera_pos[project][_view]
 
         eye = Geom::Point3d.new(camera_pos['eye']['x'] * camera_pos['eye']['factor'],
         camera_pos['eye']['y'] * camera_pos['eye']['factor'],
@@ -96,9 +97,8 @@ module Sketchup
         view = Sketchup.active_model.active_view
         camera = view.camera
         camera.set(eye, target, up)
-
         print_keys = {
-            :filename => $PRINT_PATH,
+            :filename => "#{$PRINT_PATH}\\#{project}-#{_view}.png",
             :width => $PRINT_WIDTH,
             :height => $PRINT_HEIGHT
         }
