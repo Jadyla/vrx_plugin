@@ -1,10 +1,51 @@
 require 'sketchup.rb'
+require 'extensions.rb'
+require 'langhandler.rb'
+require 'json'
+require_relative 'utils'
 
 module Sketchup
   module VRX
     @@model = ::Sketchup.active_model
     @@materials = ::Sketchup.active_model.materials
     @@entities = ::Sketchup.active_model.entities
+
+    class MonitorCommands
+      def self.initialize()
+      end
+
+      def self.start_monitoring
+        last_modification = self.get_modification_time
+        UI.start_timer(1.0, true) do
+          time_modification = self.check_file_modification(last_modification)
+          last_modification = time_modification
+        end
+      end
+
+      def self.check_file_modification(last_modification)
+        current_modified_time = self.get_modification_time
+        if current_modified_time > last_modification
+          last_modification = current_modified_time
+          puts "O arquivo foi modificado!"
+          self.read_command_file
+        else
+          puts "Sem modificação!"
+        end
+        return last_modification
+      end
+
+      def self.read_command_file
+        File.open($command_file, 'r') do |file|
+          file.each_line do |line|
+            eval(line)
+          end
+        end
+      end
+
+      def self.get_modification_time
+        return File.mtime($command_file)
+      end
+    end
 
     class CustomizeModel
       def self.paint(color, entity_attr)
@@ -15,6 +56,7 @@ module Sketchup
 
       def self.apply_texture(texture, entity_attr)
         new_material = ::Sketchup.active_model.materials.add('Joe')
+        # TODO: Remove Amoradev and set Username
         new_material.texture = 'C:\Users\Amoradev\AppData\Roaming\SketchUp\SketchUp 2021\SketchUp\Materials\\' + texture
         apply_for_all_entity_faces(entity_attr, new_material)
       end
@@ -36,26 +78,45 @@ module Sketchup
       end
     end
 
-    extend self
-
-
-      def init()
-        # define instance @variables here
+    class Screenshot
+      def self.initialize()
       end
 
-    #
-    ###
+      def self.screenshot_sketchup(project, _view)
+        camera_pos =$plans_camera_pos[project][_view]
 
-    # Run Once at startup block here:
-    this_file = Module::nesting[0].name <<':'<< File.basename(__FILE__)
-    unless file_loaded?( this_file )
+        eye = Geom::Point3d.new(camera_pos['eye']['x'] * camera_pos['eye']['factor'],
+        camera_pos['eye']['y'] * camera_pos['eye']['factor'],
+        camera_pos['eye']['z'] * camera_pos['eye']['factor'])
 
-      init() # call the init method if needed
+        target = Geom::Point3d.new(camera_pos['target']['x'] * camera_pos['target']['factor'],
+        camera_pos['target']['y'] * camera_pos['target']['factor'],
+        camera_pos['target']['z'] * camera_pos['target']['factor'])
 
-      # define commands, menus and menu items here
+        up = Geom::Vector3d.new(camera_pos['up']['x'] * camera_pos['up']['factor'],
+        camera_pos['up']['y'] * camera_pos['up']['factor'],
+        camera_pos['up']['z'] * camera_pos['up']['factor'])
 
-      file_loaded( this_file )
+
+        view = Sketchup.active_model.active_view
+        camera = view.camera
+        camera.set(eye, target, up)
+        print_keys = {
+            :filename => "#{$PRINT_PATH}\\#{project}-#{_view}.png",
+            :width => $PRINT_WIDTH,
+            :height => $PRINT_HEIGHT
+        }
+
+        view.write_image(print_keys)
+
+      end
     end
 
-  end # plugin module
-end # toplevel module
+    extend self
+
+    unless file_loaded?( __FILE__ )
+      file_loaded( __FILE__ )
+    end
+
+  end # module VRX
+end # module Sketchup

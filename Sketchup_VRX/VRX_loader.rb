@@ -1,8 +1,7 @@
 module Sketchup
   module VRX
 
-    require "#{FOLDER}/VRX_main.rb"
-    Sketchup::VRX::Connect.receive_command()
-
+    require_relative "VRX_main"
+    Sketchup::VRX::MonitorCommands.start_monitoring
   end
 end
