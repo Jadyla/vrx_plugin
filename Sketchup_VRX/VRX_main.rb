@@ -56,8 +56,7 @@ module Sketchup
 
       def self.apply_texture(texture, entity_attr)
         new_material = ::Sketchup.active_model.materials.add('Joe')
-        # TODO: Remove Amoradev and set Username
-        new_material.texture = 'C:\Users\Amoradev\AppData\Roaming\SketchUp\SketchUp 2021\SketchUp\Materials\\' + texture
+        new_material.texture = "C:\\Users\\#{$username}\\AppData\\Roaming\\SketchUp\\SketchUp #{$latest_year}\\SketchUp\\Materials\\" + texture
         apply_for_all_entity_faces(entity_attr, new_material)
       end
 
